@@ -29,19 +29,18 @@ export class TransactionGraph extends Component {
     setTimeout(() => {
       setInterval(() => {
         this.autoRefresh();
-      }, 100);
-    }, 3000);
+      }, 10);
+    }, 1000);
   };
 
   autoRefresh() {
-    // const bigRandomNumber = Math.floor(Math.random() * 50) + 1;
     const randomNumber = Math.floor(Math.random() * 4) + 2; // random no between 2 - 4
-    const xAxis = Math.floor(Math.random() * 2000) + 1;
-    const yAxis = Math.floor(Math.random() * 2000) + 1;
 
     let nodes = [...this.state.nodes];
 
     for (let i = 0; i < randomNumber; i++) {
+      const xAxis = Math.floor(Math.random() * 2000) + 1;
+      const yAxis = Math.floor(Math.random() * 2000) + 1;
       const popNode = nodes.pop();
       const newData = Object.assign({}, popNode.data, { alpha: true });
       const newPosition = Object.assign({}, popNode.position, { x: xAxis, y: yAxis });
