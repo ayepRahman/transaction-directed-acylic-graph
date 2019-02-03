@@ -7,6 +7,7 @@
     "cytoscape": "^3.3.3",
     "cytoscape-dagre": "^2.2.2",
     "dreamjs": "^0.1.8",
+    "lodash": "^4.17.11",
     "react": "^16.7.0",
     "react-autobind": "^1.0.6",
     "react-bootstrap": "^1.0.0-beta.5",
