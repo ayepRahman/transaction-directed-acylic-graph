@@ -3,7 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "bootstrap": "^4.2.1",
+    "cytoscape": "^3.3.3",
+    "cytoscape-dagre": "^2.2.2",
+    "dreamjs": "^0.1.8",
     "react": "^16.7.0",
+    "react-autobind": "^1.0.6",
+    "react-bootstrap": "^1.0.0-beta.5",
+    "react-cytoscapejs": "^1.1.0",
     "react-dom": "^16.7.0",
     "react-scripts": "2.1.3"
   },
