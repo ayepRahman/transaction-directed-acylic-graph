@@ -25,7 +25,33 @@ export class TransactionGraph extends Component {
   componentDidMount = () => {
     this.generateRandomJson();
     this.generateCalculatedEdges();
+
+    setTimeout(() => {
+      setInterval(() => {
+        this.autoRefresh();
+      }, 100);
+    }, 3000);
   };
+
+  autoRefresh() {
+    // const bigRandomNumber = Math.floor(Math.random() * 50) + 1;
+    const randomNumber = Math.floor(Math.random() * 4) + 2; // random no between 2 - 4
+    const xAxis = Math.floor(Math.random() * 2000) + 1;
+    const yAxis = Math.floor(Math.random() * 2000) + 1;
+
+    let nodes = [...this.state.nodes];
+
+    for (let i = 0; i < randomNumber; i++) {
+      const popNode = nodes.pop();
+      const newData = Object.assign({}, popNode.data, { alpha: true });
+      const newPosition = Object.assign({}, popNode.position, { x: xAxis, y: yAxis });
+      nodes.unshift({ data: newData, position: newPosition });
+    }
+
+    this.setState({
+      nodes,
+    });
+  }
 
   generateCalculatedEdges() {
     const SACRED_NUMBER = 44;
@@ -43,8 +69,6 @@ export class TransactionGraph extends Component {
       const randomNo = Math.floor(Math.random() * 2) + i;
 
       edges.forEach(ele => {
-        console.log('ele', ele);
-
         const {
           data: { source, target },
         } = ele;
@@ -85,10 +109,29 @@ export class TransactionGraph extends Component {
       }
     });
 
+    dream.customType('false', function(helper) {
+      return false;
+    });
+
+    dream.customType('xPosition', function(helper) {
+      return Math.floor(Math.random() * 2000) + 1;
+    });
+
+    dream.customType('yPosition', function(helper) {
+      return Math.floor(Math.random() * 2000) + 1;
+    });
+
     dream.schema('Nodes', {
       data: {
         id: 'incrementalId',
         label: 'incrementalLabel',
+        recipient: 'name',
+        walletAddress: 'hash',
+        alpha: 'false',
+      },
+      position: {
+        x: 'xPosition',
+        y: 'yPosition',
       },
     });
 
@@ -108,6 +151,7 @@ export class TransactionGraph extends Component {
   render() {
     const { ...others } = this.props;
     const { nodes, edges } = this.state;
+    // const elements = CytoscapeComponent.normalizeElements({ ...nodes, ...edges });
 
     return (
       <Fragment>
