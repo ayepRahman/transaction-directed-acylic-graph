@@ -11,16 +11,18 @@ import CytoscapeComponent from 'react-cytoscapejs';
 
 Cytoscape.use(CytoscapeDagre);
 
-const elements = [
-  { data: { id: 'one', label: 'Node 1' }, position: { x: 0, y: 0 } },
-  { data: { id: 'two', label: 'Node 2' }, position: { x: 100, y: 0 } },
-  { data: { id: 'three', label: 'Node 3' }, position: { x: 0, y: 0 } },
-  { data: { id: 'four', label: 'Node 4' }, position: { x: 100, y: 0 } },
+// const elements = [
+//   { data: { id: 'one', label: 'Node 1' }, position: { x: 0, y: 0 } },
+//   { data: { id: 'two', label: 'Node 2' }, position: { x: 100, y: 0 } },
+//   { data: { id: 'three', label: 'Node 3' }, position: { x: 0, y: 0 } },
+//   { data: { id: 'four', label: 'Node 4' }, position: { x: 100, y: 0 } },
 
-  { data: { source: 'one', target: 'two', label: 'Edge from Node1 to Node2' } },
-  // { data: { source: 'two', target: ['two', 'three'], label: 'Edge from Node1 to Node2' } },
-  // { data: { source: 'three', target: 'four', label: 'Edge from Node1 to Node2' } },
-];
+//   { data: { source: 'one', target: 'two', label: 'Edge from Node1 to Node2' } },
+//   { data: { source: 'one', target: 'three', label: 'Edge from Node1 to Node2' } },
+//   { data: { source: 'one', target: 'four', label: 'Edge from Node1 to Node2' } },
+//   // { data: { source: 'two', target: ['two', 'three'], label: 'Edge from Node1 to Node2' } },
+//   // { data: { source: 'three', target: 'four', label: 'Edge from Node1 to Node2' } },
+// ];
 
 /* <CytoscapeComponent
   elements={CytoscapeComponent.normalizeElements({
@@ -36,6 +38,18 @@ const elements = [
   })}
 />; */
 
+// const edges = [
+//   { data: { source: 1, target: 2, label: 'edge' } },
+//   { data: { source: 1, target: 3, label: 'edge' } },
+//   { data: { source: 1, target: 4, label: 'edge' } },
+//   { data: { source: 2, target: 3, label: 'edge' } },
+//   { data: { source: 2, target: 4, label: 'edge' } },
+//   { data: { source: 2, target: 5, label: 'edge' } },
+//   { data: { source: 3, target: 4, label: 'edge' } },
+//   { data: { source: 3, target: 5, label: 'edge' } },
+//   { data: { source: 3, target: 6, label: 'edge' } },
+// ];
+
 export class TransactionGraph extends Component {
   static propTypes = {};
 
@@ -49,21 +63,107 @@ export class TransactionGraph extends Component {
   }
 
   generateRandomJson() {
+    console.log('MY REF', this.cy);
+
+    // 1 -> 50
+    const randomCriticalTransactionNo = Math.floor(Math.random() * 50) + 1;
+
+    console.log('randomCriticalTransactionNo', randomCriticalTransactionNo);
+
+    dream.customType('incrementalId', function(helper) {
+      return helper.previousItem ? helper.previousItem.data.id + 1 : 1;
+    });
+
+    dream.customType('incrementalLabel', function(helper) {
+      // console.log(helper);
+
+      if (helper.previousItem) {
+        if (helper.previousItem.data.id === randomCriticalTransactionNo) {
+          return 'CRITICAL TRANSACTION!!!!';
+        } else {
+          return `Node ${helper.previousItem.data.id + 1}`;
+        }
+      } else {
+        return `Node ${1}`;
+      }
+    });
+
+    dream.customType('incrementalSource', function(helper) {
+      const { previousItem } = helper;
+      console.log('incrementalSource', helper);
+
+      if (helper.previousItem) {
+        const {
+          data: { source, target },
+        } = previousItem;
+
+        console.log('incrementalSource - source', source);
+        console.log('incrementalSource - target', target);
+
+        if (source < target) {
+          return source + 1;
+        } else if (source === target) {
+          return source;
+        } else {
+          return source + 1;
+        }
+      } else {
+        return 1;
+      }
+    });
+
+    dream.customType('incrementalTarget', function(helper) {
+      const { previousItem } = helper;
+      console.log('incrementalTarget', helper);
+
+      if (helper.previousItem) {
+        const {
+          data: { source, target },
+        } = previousItem;
+
+        console.log('incrementalTarget - source', source);
+        console.log('incrementalTarget - target', target);
+
+        if (target - source === 1) {
+          return target + 1;
+        } else if (target - source === 2) {
+          return target + 2;
+        } else {
+          return target + 1;
+        }
+      } else {
+        return 2;
+      }
+    });
+
     dream.schema('Nodes', {
-      id: String,
-      label: String,
+      data: {
+        id: 'incrementalId',
+        label: 'incrementalLabel',
+      },
     });
 
     dream.schema('Edges', {
-      source: String,
-      target: String,
+      data: {
+        source: 'incrementalSource',
+        target: 'incrementalTarget',
+      },
     });
 
-    var nodes = dream.useSchema('Nodes').output();
-    var edges = dream.useSchema('Edges').output();
+    var nodes = dream
+      .input({
+        name: 'Node',
+      })
+      .useSchema('Nodes')
+      .generateRnd(50)
+      .output();
+    var edges = dream
+      .useSchema('Edges')
+      .generateRnd(49)
+      .output();
 
-    console.log(nodes);
-    console.log(edges);
+    console.log('nodes', nodes);
+    console.log('edges', edges);
 
     this.setState({
       elements: {
@@ -76,15 +176,21 @@ export class TransactionGraph extends Component {
   render() {
     const { ...others } = this.props;
 
+    console.log(this.state.elements);
+    console.log('OI REF', this.cy);
+
     return (
       <Fragment>
-        <div className="text-center">
+        <div className="text-center pb-3">
           <Button onClick={this.generateRandomJson}>Generate Random Nodes</Button>
         </div>
 
         {this.state.elements && (
           <div className="border border-dark">
             <CytoscapeComponent
+              cy={cy => {
+                return (this.cy = cy);
+              }}
               elements={CytoscapeComponent.normalizeElements(this.state.elements)}
               style={{ width: '100%', height: '800px' }}
               {...others}
@@ -98,7 +204,7 @@ export class TransactionGraph extends Component {
 
 TransactionGraph.defaultProps = {
   layout: {
-    name: 'dagre',
+    name: 'random',
   },
 };
 
