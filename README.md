@@ -1,4 +1,4 @@
-# A Simple Directed Acylic Graph
+# A Simple Directed Acyclic Graph
 
 ![](transaction-graph.gif)
 
