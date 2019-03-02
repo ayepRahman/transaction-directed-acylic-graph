@@ -1,4 +1,4 @@
-# Perlin: Transaction Graph
+# A Simple Directed Acylic Graph
 
 ![](transaction-graph.gif)
 
